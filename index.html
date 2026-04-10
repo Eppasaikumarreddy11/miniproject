@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bus Pass System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        header {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffca28;
+        }
+
+        .btn {
+            background: #ffca28;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4);
+            background: #ffb300;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+        }
+
+        .btn-outline:hover {
+            background: #fff;
+            color: #1e3c72;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 80px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-content {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: #ffca28;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal h2 {
+            margin-bottom: 25px;
+            text-align: center;
+            color: #1e3c72;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .full-width-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">🚌 SmartPass AI</div>
+        <nav>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="#" onclick="openPassModal()" class="btn">Get Pass</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Next-Gen Smart Bus Pass System</h1>
+            <p>Replace paper passes with secure, digital smart cards. Powered by AI Biometric Verification and Offline QR validation. Never worry about losing your pass again.</p>
+            <div class="hero-buttons">
+                <button onclick="openPassModal()" class="btn">Apply Now</button>
+                <a href="#features" class="btn btn-outline">Learn More</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div style="font-size: 200px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));">🪪</div>
+        </div>
+    </div>
+
+    <div class="features" id="features">
+        <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Biometric Security</h3>
+            <p>Face and fingerprint recognition makes your pass 100% non-transferable and fraud-proof.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📵</div>
+            <h3>Offline Verification</h3>
+            <p>Secure QR codes allow conductors to validate your pass even without an internet connection.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔔</div>
+            <h3>Smart Alerts</h3>
+            <p>Get automated WhatsApp/SMS alerts before your pass expires to renew instantly online.</p>
+        </div>
+    </div>
+
+    <!-- Pass Selection Modal -->
+    <div id="passModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePassModal()">&times;</span>
+            <h2>Select Your Pass</h2>
+            
+            <div class="form-group">
+                <label>Passenger Type</label>
+                <select id="userType">
+                    <option value="general">General Public</option>
+                    <option value="student">Student (20% Off)</option>
+                    <option value="senior">Senior Citizen (30% Off)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Validity Duration</label>
+                <select id="months">
+                    <option value="1">1 Month (₹300)</option>
+                    <option value="3">3 Months (₹800)</option>
+                    <option value="6">6 Months (₹1500)</option>
+                    <option value="12">1 Year (₹2800)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Pass Type</label>
+                <select id="mode">
+                    <option value="new">New Registration</option>
+                    <option value="renew">Renewal</option>
+                </select>
+            </div>
+
+            <button onclick="proceedToRegistration()" class="btn full-width-btn">Proceed to Biometrics</button>
+        </div>
+    </div>
+
+    <script>
+        function openPassModal() {
+            document.getElementById('passModal').style.display = 'flex';
+        }
+
+        function closePassModal() {
+            document.getElementById('passModal').style.display = 'none';
+        }
+
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('passModal');
+            if (event.target == modal) {
+                closePassModal();
+            }
+        }
+
+        function proceedToRegistration() {
+            const userType = document.getElementById('userType').value;
+            const months = document.getElementById('months').value;
+            const mode = document.getElementById('mode').value;
+
+            // Save basic selections to localStorage for the registration page to pick up
+            localStorage.setItem('userType', userType);
+            localStorage.setItem('months', months);
+            localStorage.setItem('mode', mode);
+
+            // Redirect to biometric registration
+            window.location.href = 'registration.html';
+        }
+    </script>
+</body>
+</html>

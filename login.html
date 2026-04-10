@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger Login - SmartPass AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: #2a4c82; /* exact dark blue background */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: #f8f9fa; /* slightly off white */
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a365d;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #facc15;
+            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.2);
+        }
+        .login-btn {
+            width: 100%;
+            background: #facc15;
+            color: #1a202c;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: #eab308;
+        }
+        .login-footer {
+            text-align: center;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .login-footer a {
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: #e53e3e;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="header">
+            <h1>🚌 Passenger Login</h1>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Aadhar Number or Email</label>
+                <input type="text" id="email" placeholder="Enter Aadhar or Email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            <div id="errorMsg" class="error"></div>
+
+            <button type="submit" class="login-btn">Login to Dashboard</button>
+        </form>
+
+        <div class="login-footer">
+            Don't have a pass yet? <a href="index.html">Get one here</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userName', data.user.name);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorMsg.textContent = data.error || 'Login failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error logging in:', error);
+                errorMsg.textContent = 'Server connection error';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

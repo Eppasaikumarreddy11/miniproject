@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SmartPass AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        header {
+            background: linear-gradient(90deg, #6b46c1 0%, #4c51bf 100%);
+            padding: 20px 40px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        h2 {
+            font-size: 22px;
+            color: #2d3748;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #edf2f7;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #6b46c1;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .monitoring-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #edf2f7;
+        }
+        .monitoring-card h2 {
+            margin-bottom: 15px;
+        }
+        .monitoring-card p {
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+        
+        .alert-box {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        🚌 SmartPass AI - Admin
+    </header>
+
+    <div class="container">
+        <h2>System Analytics</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">...</div>
+                <div class="stat-label">Total Registered Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPasses">...</div>
+                <div class="stat-label">Total Passes Issued</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalRevenue">₹...</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+
+        <div class="monitoring-card">
+            <h2>AI Intelligent Monitoring & Alerts</h2>
+            <p>The system automatically monitors for expired passes and potentially fraudulent offline QR scans.</p>
+            
+            <div class="alert-box">
+                ✅ All systems operational. Biometric matching latency is at 120ms.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadStats() {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/admin/stats');
+                const data = await res.json();
+                
+                document.getElementById('totalUsers').textContent = data.users;
+                document.getElementById('totalPasses').textContent = data.passes;
+                document.getElementById('totalRevenue').textContent = '₹' + data.revenue;
+            } catch (err) {
+                console.error("Failed to load stats", err);
+            }
+        }
+        
+        loadStats();
+    </script>
+</body>
+</html>

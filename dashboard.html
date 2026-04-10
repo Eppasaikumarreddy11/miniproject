@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - SmartPass AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: #e2e8f0; /* matching the screenshot grey */
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        header {
+            background: #1e3a8a; /* deep blue */
+            padding: 15px 40px;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .user-greeting {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            font-size: 18px;
+            color: #4a5568;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+        .detail-label {
+            width: 140px;
+            color: #718096;
+        }
+        .detail-value {
+            color: #2d3748;
+            font-weight: 500;
+        }
+        .status-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-image {
+            width: 200px;
+            height: 200px;
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .qr-text {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 350px;
+        }
+        .logout-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 20px;
+            transition: 0.3s;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">SmartPass AI</div>
+        <div>
+            <span class="user-greeting" id="userName">Welcome, Guest</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Digital Pass Details -->
+        <div class="card">
+            <h3>🗂️ Digital Pass Details</h3>
+            
+            <div class="detail-row">
+                <div class="detail-label">Pass ID:</div>
+                <div class="detail-value" id="passId">Loading...</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">User Type:</div>
+                <div class="detail-value" id="userType">...</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Status:</div>
+                <div class="detail-value"><span class="status-badge" id="passStatus">ACTIVE</span></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Valid From:</div>
+                <div class="detail-value" id="validFrom">...</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Valid Until:</div>
+                <div class="detail-value" id="validUntil">...</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Total Paid:</div>
+                <div class="detail-value" id="totalPaid">...</div>
+            </div>
+        </div>
+
+        <!-- Offline QR Validation -->
+        <div class="card qr-section">
+            <h3 style="align-self: flex-start;">📱 Offline QR Validation</h3>
+            
+            <img id="qrImage" class="qr-image" src="" alt="QR Code" style="display:none;">
+            <div id="loadingQr" style="width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#eee; margin-bottom:20px;">Loading...</div>
+
+            <p class="qr-text">
+                Show this secure QR code to the conductor for offline validation. It uses cryptographic signatures to prevent fraud.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const name = localStorage.getItem('userName');
+            if (name) {
+                document.getElementById('userName').textContent = "Welcome, " + name;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/pass/my-pass', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (data.id) {
+                    document.getElementById('passId').textContent = 'PASS-' + String(data.id).padStart(6, '0');
+                    document.getElementById('userType').textContent = data.userType || 'GENERAL';
+                    document.getElementById('passStatus').textContent = data.status || 'ACTIVE';
+                    
+                    const fromDate = new Date(data.validFrom);
+                    const untilDate = new Date(data.validUntil);
+                    
+                    document.getElementById('validFrom').textContent = `${fromDate.getDate()}/${fromDate.getMonth()+1}/${fromDate.getFullYear()}`;
+                    document.getElementById('validUntil').textContent = `${untilDate.getDate()}/${untilDate.getMonth()+1}/${untilDate.getFullYear()}`;
+                    document.getElementById('totalPaid').textContent = '₹' + data.price;
+
+                    if (data.qrCodeData) {
+                        document.getElementById('loadingQr').style.display = 'none';
+                        document.getElementById('qrImage').src = data.qrCodeData;
+                        document.getElementById('qrImage').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('passId').textContent = 'No pass found';
+                    document.getElementById('userType').textContent = '-';
+                    document.getElementById('passStatus').textContent = 'NONE';
+                    document.getElementById('validFrom').textContent = '-';
+                    document.getElementById('validUntil').textContent = '-';
+                    document.getElementById('totalPaid').textContent = '-';
+                    document.getElementById('loadingQr').innerHTML = '<a href="index.html" style="background:#facc15; padding:10px 20px; border-radius:5px; text-decoration:none; color:#1a202c; font-weight:bold;">Get a Pass</a>';
+                }
+            } catch (err) {
+                console.error("Error loading pass:", err);
+                document.getElementById('passId').textContent = 'Error loading pass';
+                document.getElementById('loadingQr').textContent = 'Failed to load QR';
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userName');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
